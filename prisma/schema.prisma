@@ -1,0 +1,56 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.VarChar(255)
+  username     String     @unique @db.VarChar(255)
+  password     String     @db.VarChar(255) // Bcrypt Hash
+  documents    Document[] 
+
+  @@map("users")
+}
+
+enum DocumentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AutomationType {
+  CONCILIACAO_CTE
+  COMPROVANTE_FAT
+}
+
+model Document {
+  id                  String         @id @default(uuid()) @db.VarChar(255)
+  userId              String         @map("user_id") @db.VarChar(255)
+  
+  // Rastreabilidade do Arquivo
+  originalName        String         @map("original_name") @db.VarChar(255)
+  processedName       String?        @map("processed_name") @db.VarChar(255) 
+  originalStorageKey  String         @map("original_storage_key") @db.VarChar(500)
+  processedStorageKey String?        @map("processed_storage_key") @db.VarChar(500)
+  
+  // Metadados do Job
+  status              DocumentStatus @default(PENDING)
+  automationType      AutomationType @map("automation_type")
+  extractedData       Json?          @map("extracted_data") // Payload dinâmico (Match Fuse.js, CTE, Valores)
+  errorMessage        String?        @map("error_message") @db.Text
+  
+  // Timestamps para TTL/Lifecycle Policy (MinIO purge tracking)
+  createdAt           DateTime       @default(now()) @map("created_at")
+  processedAt         DateTime?      @map("processed_at")
+  
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("documents")
+}
