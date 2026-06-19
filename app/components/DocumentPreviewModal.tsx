@@ -22,13 +22,21 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (previewDoc?.isSpreadsheet) {
-      setLoading(true);
-      setError(null);
-      setSheetData(null);
-      setSearchQuery("");
+    if (!previewDoc) return;
+
+    setLoading(true);
+    setError(null);
+    setSheetData(null);
+    setSearchQuery("");
+    setPdfUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+
+    if (previewDoc.isSpreadsheet) {
       fetch(`/api/document/${previewDoc.id}/sheet`)
         .then(async (res) => {
           const contentType = res.headers.get("content-type");
@@ -49,6 +57,24 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
         })
         .catch((err) => {
           setError(err.message || "Falha ao processar a planilha.");
+          setLoading(false);
+        });
+    } else {
+      fetch(`/api/document/${previewDoc.id}`)
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || "Erro ao carregar o documento PDF.");
+          }
+          return res.blob();
+        })
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message || "Falha ao processar o PDF.");
           setLoading(false);
         });
     }
@@ -118,87 +144,83 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
 
         {/* Viewer inline */}
         <div className="modal-viewer">
-          {previewDoc.isSpreadsheet ? (
-            <div className="sheet-preview-container">
-              {loading ? (
-                <div className="sheet-loading">
-                  <div className="spinner" />
-                  <span>Carregando dados da planilha...</span>
-                </div>
-              ) : error ? (
-                <div className="sheet-error">
-                  <span>{error}</span>
-                </div>
-              ) : (
-                <>
-                  <div className="sheet-search-bar">
-                    <div className="search-input-wrapper">
-                      <Search size={16} className="search-icon" />
-                      <input 
-                        type="text" 
-                        placeholder="Buscar em todas as colunas..." 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="search-input"
-                      />
-                    </div>
-                    <div className="sheet-stats">
-                      <span>Total de itens: <strong>{sheetData?.rows.length || 0}</strong></span>
-                      {filteredRows.length !== (sheetData?.rows.length || 0) && (
-                        <span>Encontrados: <strong>{filteredRows.length}</strong></span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="sheet-table-wrapper">
-                    <table className="sheet-table">
-                      <thead>
-                        <tr>
-                          {sheetData?.headers.map((header, idx) => (
-                            <th key={idx} className={isCurrencyColumn(header) ? "text-right" : ""}>
-                              {formatHeader(header)}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredRows.length === 0 ? (
-                          <tr>
-                            <td colSpan={sheetData?.headers.length || 1} className="sheet-empty-table">
-                              {searchQuery ? "Nenhum registro encontrado para a busca." : "A planilha não possui dados."}
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredRows.map((row, rowIdx) => (
-                            <tr key={rowIdx}>
-                              {sheetData?.headers.map((header, colIdx) => {
-                                const val = row[colIdx];
-                                const isCurrency = isCurrencyColumn(header);
-                                return (
-                                  <td 
-                                    key={colIdx} 
-                                    className={`${isCurrency ? "mono text-right font-bold" : ""} ${header === "nr_carta_frete" ? "mono" : ""}`}
-                                  >
-                                    {formatCell(val, header)}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
+          {loading ? (
+            <div className="sheet-loading">
+              <div className="spinner" />
+              <span>{previewDoc.isSpreadsheet ? "Carregando dados da planilha..." : "Carregando documento PDF..."}</span>
             </div>
-          ) : (
+          ) : error ? (
+            <div className="sheet-error">
+              <span>{error}</span>
+            </div>
+          ) : previewDoc.isSpreadsheet ? (
+            <div className="sheet-preview-container">
+              <div className="sheet-search-bar">
+                <div className="search-input-wrapper">
+                  <Search size={16} className="search-icon" />
+                  <input 
+                    type="text" 
+                    placeholder="Buscar em todas as colunas..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
+                <div className="sheet-stats">
+                  <span>Total de itens: <strong>{sheetData?.rows.length || 0}</strong></span>
+                  {filteredRows.length !== (sheetData?.rows.length || 0) && (
+                    <span>Encontrados: <strong>{filteredRows.length}</strong></span>
+                  )}
+                </div>
+              </div>
+
+              <div className="sheet-table-wrapper">
+                <table className="sheet-table">
+                  <thead>
+                    <tr>
+                      {sheetData?.headers.map((header, idx) => (
+                        <th key={idx} className={isCurrencyColumn(header) ? "text-right" : ""}>
+                          {formatHeader(header)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRows.length === 0 ? (
+                      <tr>
+                        <td colSpan={sheetData?.headers.length || 1} className="sheet-empty-table">
+                          {searchQuery ? "Nenhum registro encontrado para a busca." : "A planilha não possui dados."}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredRows.map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {sheetData?.headers.map((header, colIdx) => {
+                            const val = row[colIdx];
+                            const isCurrency = isCurrencyColumn(header);
+                            return (
+                              <td 
+                                key={colIdx} 
+                                className={`${isCurrency ? "mono text-right font-bold" : ""} ${header === "nr_carta_frete" ? "mono" : ""}`}
+                              >
+                                {formatCell(val, header)}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : pdfUrl ? (
             <embed 
-              src={`/api/document/${previewDoc.id}`} 
+              src={pdfUrl} 
               type="application/pdf" 
               className="modal-pdf-embed"
             />
-          )}
+          ) : null}
         </div>
       </div>
     </div>

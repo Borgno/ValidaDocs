@@ -1,7 +1,8 @@
-import { Form, useActionData, useNavigation, useLoaderData, useRevalidator } from "react-router";
+import { Form, useActionData, useNavigation, useLoaderData, useRevalidator, useFetcher } from "react-router";
 import { useState, useEffect } from "react";
-import { FileText, FileSpreadsheet, Package, History, CheckCircle2, XCircle, Play, Loader2, ArrowRight, CheckSquare } from "lucide-react";
+import { FileText, FileSpreadsheet, Package, History, CheckCircle2, XCircle, Play, Loader2, ArrowRight, CheckSquare, Trash2 } from "lucide-react";
 import { DocumentPreviewModal } from "../components/DocumentPreviewModal";
+import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog";
 import "../styles/conciliacao.css";
 
 // Interface baseada no retorno do loader da rota
@@ -19,6 +20,21 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
   const [previewDoc, setPreviewDoc] = useState<{ id: string; name: string; isSpreadsheet?: boolean } | null>(null);
   const [activeTab, setActiveTab] = useState<"lotes" | "historico">("historico");
   const revalidator = useRevalidator();
+  const fetcher = useFetcher();
+  const [deleteBatchTarget, setDeleteBatchTarget] = useState<string | null>(null);
+  const [deleteFileTarget, setDeleteFileTarget] = useState<string | null>(null);
+
+  const confirmDeleteBatch = () => {
+    if (!deleteBatchTarget) return;
+    fetcher.submit({ actionType: "deleteBatch", id: deleteBatchTarget }, { method: "post" });
+    setDeleteBatchTarget(null);
+  };
+
+  const confirmDeleteFile = () => {
+    if (!deleteFileTarget) return;
+    fetcher.submit({ actionType: "deleteFile", id: deleteFileTarget }, { method: "post" });
+    setDeleteFileTarget(null);
+  };
 
   const childDocs = documents.filter((d: any) => d.originalName.startsWith("Página"));
   const batchDocs = documents.filter((d: any) => !d.originalName.startsWith("Página"));
@@ -46,8 +62,8 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
             <CheckSquare size={24} />
           </div>
           <div>
-            <h2 className="conciliacao-title">Conciliação Inteligente</h2>
-            <p className="conciliacao-subtitle">Cruze informações do CTE com a planilha FAT.</p>
+            <h2 className="conciliacao-title">Conferência de Lotes</h2>
+            <p className="conciliacao-subtitle">Cruze informações do PDF para achar seu CTE na planilha.</p>
           </div>
         </div>
         
@@ -138,12 +154,22 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
               return (
               <div key={doc.id} className="card lote-card">
                 <div className="lote-header">
-                  <span className={`badge ${statusClass}`}>
-                    {statusText}
-                  </span>
-                  <span className="lote-date">
-                    {new Date(doc.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })} às {new Date(doc.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={`badge ${statusClass}`}>
+                      {statusText}
+                    </span>
+                    <span className="lote-date">
+                      {new Date(doc.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })} às {new Date(doc.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-delete-lote"
+                    onClick={() => setDeleteBatchTarget(doc.id)}
+                    title="Excluir lote"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
                 
                 <div className="lote-files-box">
@@ -231,11 +257,24 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
                     {docs.map((doc: any) => {
                       const docName = doc.processedName || doc.originalName;
                       return (
-                        <button
+                        <div
                           key={doc.id}
                           onClick={() => setPreviewDoc({ id: doc.id, name: docName })}
                           className="historico-card"
+                          style={{ cursor: "pointer" }}
                         >
+                          <button
+                            type="button"
+                            className="btn-delete-card"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteFileTarget(doc.id);
+                            }}
+                            title="Excluir arquivo"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+
                           <div className="historico-file-icon">
                             <FileText size={32} color="var(--primary)" strokeWidth={1.2} />
                           </div>
@@ -243,7 +282,7 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
                           <span className="historico-doc-name">
                             {docName}
                           </span>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -255,6 +294,22 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
       })()}
 
       <DocumentPreviewModal previewDoc={previewDoc} setPreviewDoc={setPreviewDoc} theme="primary" />
+
+      <ConfirmDeleteDialog
+        isOpen={deleteBatchTarget !== null}
+        title="Excluir Lote Completo"
+        description="Todos os arquivos desmembrados deste lote serão excluídos permanentemente do armazenamento. Esta ação não pode ser desfeita."
+        onConfirm={confirmDeleteBatch}
+        onCancel={() => setDeleteBatchTarget(null)}
+      />
+
+      <ConfirmDeleteDialog
+        isOpen={deleteFileTarget !== null}
+        title="Excluir Arquivo"
+        description="Este arquivo será removido permanentemente do armazenamento. Se for o último do seu lote, o lote será excluído automaticamente."
+        onConfirm={confirmDeleteFile}
+        onCancel={() => setDeleteFileTarget(null)}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 
 const minioClient = new S3Client({
   endpoint: `http://${process.env.MINIO_ENDPOINT || 'localhost'}:${process.env.MINIO_PORT || 9000}`,
@@ -11,6 +11,27 @@ const minioClient = new S3Client({
 });
 
 const BUCKET_NAME = process.env.MINIO_BUCKET || "validadocs";
+
+export async function deleteFromMinIO(key: string): Promise<void> {
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+  try {
+    await minioClient.send(command);
+  } catch (error) {
+    console.warn(`[MinIO Warning] Falha ao excluir arquivo ou arquivo já inexistente: ${key}`, error);
+  }
+}
+
+export async function fileExistsInMinIO(key: string): Promise<boolean> {
+  try {
+    await minioClient.send(new HeadObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function uploadToMinIO(file: File, key: string): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();

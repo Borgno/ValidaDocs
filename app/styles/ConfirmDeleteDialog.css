@@ -1,0 +1,146 @@
+/* ConfirmDeleteDialog — notification-style floating panel */
+
+.cdd-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 32px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cdd-backdrop--visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cdd-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #111419;
+  border: 1px solid rgba(255, 74, 90, 0.35);
+  border-radius: 10px;
+  padding: 18px 20px 16px 20px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  box-shadow:
+    0 0 0 1px rgba(255, 74, 90, 0.1),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(255, 74, 90, 0.08);
+  transform: translateY(24px);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cdd-panel--visible {
+  transform: translateY(0);
+}
+
+.cdd-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 74, 90, 0.1);
+  border: 1px solid rgba(255, 74, 90, 0.2);
+  color: #ff4a5a;
+  flex-shrink: 0;
+}
+
+.cdd-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cdd-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #f3f5f8;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.cdd-description {
+  font-size: 0.78rem;
+  color: #8e99a7;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cdd-btn-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #8e99a7;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.cdd-btn-close:hover {
+  color: #f3f5f8;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cdd-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cdd-btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #8e99a7;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.cdd-btn-cancel:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #f3f5f8;
+}
+
+.cdd-btn-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 74, 90, 0.12);
+  border: 1px solid rgba(255, 74, 90, 0.3);
+  color: #ff4a5a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.cdd-btn-confirm:hover {
+  background: rgba(255, 74, 90, 0.22);
+  border-color: rgba(255, 74, 90, 0.55);
+  box-shadow: 0 0 12px rgba(255, 74, 90, 0.15);
+}

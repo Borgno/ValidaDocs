@@ -44,14 +44,14 @@ function Sidebar() {
             {isExpanded && <span className="sidebar-text">Dashboard</span>}
           </NavLink>
 
-          <NavLink to="/conciliacao" prefetch="render" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} title="Conciliação">
+          <NavLink to="/conciliacao" prefetch="render" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} title="Conferência de Lotes">
             <CheckSquare size={24} className="sidebar-icon" />
-            {isExpanded && <span className="sidebar-text">Conciliação</span>}
+            {isExpanded && <span className="sidebar-text">Conferência de Lotes</span>}
           </NavLink>
 
-          <NavLink to="/comprovantes-fat" prefetch="render" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} title="Comprovantes FAT">
+          <NavLink to="/comprovantes-fat" prefetch="render" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} title="Mapeador de CTE">
             <FileText size={24} className="sidebar-icon" />
-            {isExpanded && <span className="sidebar-text">Comprovantes</span>}
+            {isExpanded && <span className="sidebar-text">Mapeador de CTE</span>}
           </NavLink>
         </div>
       </div>

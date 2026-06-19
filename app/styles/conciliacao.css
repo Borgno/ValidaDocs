@@ -588,3 +588,50 @@
   height: 2.8em;
   text-align: center;
 }
+
+/* Delete batch/lote button */
+.btn-delete-lote {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.2s ease-in-out;
+  margin-left: 12px;
+}
+
+.btn-delete-lote:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ff4d4d;
+}
+
+/* Delete card button */
+.btn-delete-card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.historico-card:hover .btn-delete-card {
+  opacity: 1;
+}
+
+.btn-delete-card:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ff4d4d;
+}

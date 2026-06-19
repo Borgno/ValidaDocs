@@ -105,7 +105,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
-  border: 1px dashed rgba(0, 208, 132, 0.3);
+  border: 1px dashed rgba(0, 102, 255, 0.25);
   border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.01);
   cursor: pointer;
@@ -247,4 +247,135 @@
   background: var(--primary);
   border-radius: 2px 2px 0 0;
   box-shadow: 0 0 10px var(--primary);
+}
+
+/* Tabs wrapper */
+.tabs-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+/* Empty States */
+.empty-state-box {
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state-icon {
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-state-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.empty-state-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Histórico Grid */
+.grid-historico {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.historico-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.historico-card:hover:not(:disabled) {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(102, 163, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.historico-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.historico-icon-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.historico-file-icon {
+  margin-bottom: 12px;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.historico-doc-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: white;
+  line-height: 1.4;
+  word-break: break-all;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.8em;
+  text-align: center;
+}
+
+/* Delete card button */
+.btn-delete-card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.historico-card:hover .btn-delete-card {
+  opacity: 1;
+}
+
+.btn-delete-card:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ff4d4d;
 }

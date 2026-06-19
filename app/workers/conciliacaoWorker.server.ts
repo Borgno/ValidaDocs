@@ -4,8 +4,7 @@ import { processConciliacaoLogic, type ExcelRow } from "../domain/conciliacao/en
 import { downloadFromMinIO, uploadBufferToMinIO } from "../services/storage.server";
 import { prisma } from "../services/db.server";
 import { PDFDocument } from "pdf-lib";
-import * as pdfParseModule from "pdf-parse";
-const pdfParse = (pdfParseModule as any).default || pdfParseModule;
+import { PDFParse } from "pdf-parse";
 import * as xlsx from "xlsx";
 
 export const conciliacaoWorker = new Worker(
@@ -86,14 +85,15 @@ export const conciliacaoWorker = new Worker(
         const singlePdfBytes = await singlePdf.save();
         
         // Aplica o parser NLP no novo blob isolado
-        const pdfTextResult = await pdfParse(Buffer.from(singlePdfBytes));
+        const parser = new PDFParse({ data: Buffer.from(singlePdfBytes) });
+        const pdfTextResult = await parser.getText();
         
         // 4. Injetar na Logic Engine pura
         const result = await processConciliacaoLogic(pdfTextResult.text, mappedExcelData);
         
         // 5. Salva Fisicamente (MinIO) o singlePDF como artefato atômico
         const folderPrefix = result.success ? "matched" : "unmatched";
-        const processedStorageKey = `${folderPrefix}/batch-${documentId}-page-${i}.pdf`;
+        const processedStorageKey = `conciliacao/${folderPrefix}/batch-${documentId}-page-${i}.pdf`;
         const processedFile = Buffer.from(singlePdfBytes);
         await uploadBufferToMinIO(processedFile, processedStorageKey);
 
