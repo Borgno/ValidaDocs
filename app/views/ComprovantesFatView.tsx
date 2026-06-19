@@ -67,7 +67,7 @@ export function ComprovantesFatView({ documents, actionData }: ComprovantesFatVi
                 <div className="upload-text-name-fat">{pdfName}</div>
                 <div className="upload-text-desc-fat">Arraste o comprovante PDF ou clique para buscar</div>
               </div>
-              <input type="file" id="pdf" name="pdf" accept="application/pdf" required className="hidden-input" onChange={(e) => setPdfName(e.target.files?.[0]?.name || "Selecionar Comprovante PDF")} />
+              <input type="file" id="pdf" name="pdf" accept="application/pdf" required className="hidden-input" style={{ display: 'none' }} onChange={(e) => setPdfName(e.target.files?.[0]?.name || "Selecionar Comprovante PDF")} />
             </label>
           </div>
 

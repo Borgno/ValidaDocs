@@ -27,6 +27,7 @@ app/
 ├── domain/         # CORE BUSINESS LOGIC. Funções puras, sem dependência de I/O, Node ou Framework.
 │   ├── conciliacao/  # Regras específicas do fluxo "Comprovantes e Excel FAT".
 │   └── comprovantes/ # Regras específicas do fluxo "Comprovantes FAT".
+├── entrypoints/    # Implementações reais dos entrypoints.
 ├── hooks/          # Custom React Hooks (State management da UI).
 ├── jobs/           # Definição das Filas (Queues) do BullMQ e Job Producers.
 ├── workers/        # Job Consumers (Daemons do BullMQ que processam a lógica pesada isolados da UI).
@@ -35,6 +36,8 @@ app/
 ├── types/          # DTOs, Interfaces e tipagens globais do TypeScript.
 ├── utils/          # Parsers genéricos (ex: formatadores de string, sanitização de arquivos).
 ├── views/          # Smart components (Pages) injetadas pelos routes.
+├── entry.client.tsx # Proxy do entrypoint client (React Router convention).
+├── entry.server.tsx # Proxy do entrypoint server (React Router convention).
 ├── root.tsx        # React Router Root.
 └── routes.ts       # Router Config Mapping.
 ## 3. 🗄️ Database Schema Design (Prisma)

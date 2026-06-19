@@ -3,12 +3,17 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+let databaseUrl = process.env["DATABASE_URL"];
+if (process.env["RUNNING_IN_DOCKER"] === "true" && databaseUrl) {
+  databaseUrl = databaseUrl.replace("://localhost:", "://db:").replace("://127.0.0.1:", "://db:");
+}
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: databaseUrl,
   },
 });

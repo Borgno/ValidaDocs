@@ -2,7 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = `${process.env.DATABASE_URL}`;
+let connectionString = `${process.env.DATABASE_URL}`;
+if (process.env.RUNNING_IN_DOCKER === "true" && connectionString) {
+  connectionString = connectionString.replace("://localhost:", "://db:").replace("://127.0.0.1:", "://db:");
+}
 
 let prisma: PrismaClient;
 

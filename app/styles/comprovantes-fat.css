@@ -140,6 +140,11 @@
   box-shadow: 0 0 12px rgba(0, 102, 255, 0.2);
 }
 
+.upload-text-center {
+  text-align: center;
+  width: 100%;
+}
+
 .upload-text-name-fat {
   font-size: 0.85rem;
   font-weight: 600;
