@@ -128,7 +128,7 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
           <div className="modal-actions-wrapper">
             <a 
               href={previewDoc.isSpreadsheet ? `/api/document/${previewDoc.id}?spreadsheet=true` : `/api/document/${previewDoc.id}?download=true`} 
-              download 
+              download={previewDoc.name}
               className={`btn-download-modal ${isSuccess ? 'success' : 'primary'}`}
             >
               <Download size={18} /> Baixar

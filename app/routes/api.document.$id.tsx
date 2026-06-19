@@ -39,7 +39,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   const targetKey = isCompleted && doc.processedStorageKey ? doc.processedStorageKey : doc.originalStorageKey;
-  const targetName = isCompleted && doc.processedName ? doc.processedName : doc.originalName;
+  const targetName = (isCompleted && doc.processedName && doc.processedName !== "Lote Processado")
+    ? doc.processedName
+    : doc.originalName;
 
   try {
     const fileBuffer = await downloadFromMinIO(targetKey);

@@ -207,7 +207,7 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
       {activeTab === "historico" && (() => {
         // Agrupa os documentos filhos pelo ID do Lote
         const childDocsByBatch = childDocs.reduce((acc: Record<string, any[]>, doc: any) => {
-          const match = doc.originalStorageKey?.match(/batch-([a-f0-9-]+)-page/);
+          const match = doc.originalStorageKey?.match(/batch-([a-f0-9-]+)/);
           const batchId = match ? match[1] : "avulso";
           if (!acc[batchId]) {
             acc[batchId] = [];

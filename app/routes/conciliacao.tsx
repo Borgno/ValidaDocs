@@ -103,7 +103,7 @@ export async function action({ request }: { request: Request }) {
       const doc = await prisma.document.findUnique({ where: { id } });
       if (!doc) return Response.json({ error: "Arquivo não encontrado" }, { status: 404 });
 
-      const batchMatch = doc.originalStorageKey?.match(/batch-([a-f0-9-]+)-page/);
+      const batchMatch = doc.originalStorageKey?.match(/batch-([a-f0-9-]+)/);
       const batchId = batchMatch?.[1] ?? null;
 
       const keysToDelete = new Set(
@@ -134,9 +134,9 @@ export async function action({ request }: { request: Request }) {
     return Response.json({ error: "Arquivo corrompido ou vazio detectado no upload." }, { status: 400 });
   }
 
-  const timestamp = Date.now();
-  const pdfKey = await uploadToMinIO(pdfFile, `conciliacao/row/pdf-${timestamp}.pdf`);
-  const excelKey = await uploadToMinIO(excelFile, `conciliacao/row/xls-${timestamp}.xlsx`);
+  const batchId = crypto.randomUUID();
+  const pdfKey = await uploadToMinIO(pdfFile, `conciliacao/row/batch-${batchId}/${pdfFile.name}`);
+  const excelKey = await uploadToMinIO(excelFile, `conciliacao/row/batch-${batchId}/${excelFile.name}`);
 
   await prisma.user.upsert({
     where: { id: "user_mock" },
@@ -150,6 +150,7 @@ export async function action({ request }: { request: Request }) {
 
   const docRecord = await prisma.document.create({
     data: {
+      id: batchId,
       userId: "user_mock",
       originalName: pdfFile.name,
       originalStorageKey: pdfKey,

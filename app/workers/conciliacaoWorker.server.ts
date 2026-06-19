@@ -93,7 +93,9 @@ export const conciliacaoWorker = new Worker(
         
         // 5. Salva Fisicamente (MinIO) o singlePDF como artefato atômico
         const folderPrefix = result.success ? "matched" : "unmatched";
-        const processedStorageKey = `conciliacao/${folderPrefix}/batch-${documentId}-page-${i}.pdf`;
+        const processedStorageKey = result.success 
+          ? `conciliacao/matched/batch-${documentId}/${result.newFileName}`
+          : `conciliacao/unmatched/batch-${documentId}/page-${i}-${result.newFileName}`;
         const processedFile = Buffer.from(singlePdfBytes);
         await uploadBufferToMinIO(processedFile, processedStorageKey);
 

@@ -62,8 +62,8 @@ export async function action({ request }: { request: Request }) {
     return Response.json({ error: "Arquivo corrompido ou vazio detectado no upload." }, { status: 400 });
   }
 
-  const timestamp = Date.now();
-  const pdfKey = await uploadToMinIO(pdfFile, `comprovantes-fat/row/comprovante-fat-${timestamp}.pdf`);
+  const documentId = crypto.randomUUID();
+  const pdfKey = await uploadToMinIO(pdfFile, `comprovantes-fat/row/doc-${documentId}/${pdfFile.name}`);
 
   await prisma.user.upsert({
     where: { id: "user_mock" },
@@ -77,6 +77,7 @@ export async function action({ request }: { request: Request }) {
 
   const docRecord = await prisma.document.create({
     data: {
+      id: documentId,
       userId: "user_mock",
       originalName: pdfFile.name,
       originalStorageKey: pdfKey,
