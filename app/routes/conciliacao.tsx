@@ -64,6 +64,7 @@ async function deleteBatchDoc(batchId: string) {
 async function autoDeleteParentIfEmpty(batchId: string) {
   const remainingChildren = await prisma.document.count({
     where: {
+      id: { not: batchId }, // Impede que o próprio lote (Pai) seja contado como filho
       automationType: "CONCILIACAO_CTE",
       originalStorageKey: { contains: `batch-${batchId}` },
     },

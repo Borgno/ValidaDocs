@@ -25,7 +25,7 @@ export function ComprovantesFatView({ documents, actionData }: ComprovantesFatVi
     setDeleteTarget(null);
   };
 
-  const isProcessing = documents.some((d: any) => d.status === 'PROCESSING');
+  const isProcessing = documents.some((d: any) => d.status === 'PROCESSING' || d.status === 'PENDING');
 
   useEffect(() => {
     if (isProcessing) {
@@ -107,7 +107,7 @@ export function ComprovantesFatView({ documents, actionData }: ComprovantesFatVi
       ) : (
         <div className="grid-historico">
           {documents.map((doc: any) => {
-            const isProcessing = doc.status === 'PROCESSING';
+            const isProcessing = doc.status === 'PROCESSING' || doc.status === 'PENDING';
             const docName = doc.processedName || doc.originalName;
 
             return (

@@ -1,26 +1,40 @@
-FROM public.ecr.aws/docker/library/node:22-alpine AS development-dependencies-env
-COPY . /app
+FROM node:22-alpine AS base
+
+# Install openssl for Prisma
+RUN apk update && apk add --no-cache openssl
+
 WORKDIR /app
+
+# Dependencies stage
+FROM base AS deps
+COPY package.json package-lock.json ./
 RUN npm ci
+
+# Builder stage
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma Client
 RUN npx prisma generate
 
-FROM public.ecr.aws/docker/library/node:22-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
-WORKDIR /app
-RUN npm ci --omit=dev
-
-FROM public.ecr.aws/docker/library/node:22-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
+# Build the application
 RUN npm run build
 
-FROM public.ecr.aws/docker/library/node:22-alpine
-COPY ./package.json package-lock.json /app/
-COPY ./prisma /app/prisma
-COPY ./prisma.config.ts /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=development-dependencies-env /app/node_modules/.prisma /app/node_modules/.prisma
-COPY --from=build-env /app/build /app/build
-WORKDIR /app
+# Runner stage
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy necessary files from builder
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+# Copy public folder if it exists (for static assets before build, though React Router v7 puts them in build/client, it's safe to copy)
+COPY --from=builder /app/public ./public
+
+EXPOSE 3000
+
 CMD ["npm", "run", "start"]

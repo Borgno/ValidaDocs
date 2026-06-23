@@ -39,7 +39,7 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
   const childDocs = documents.filter((d: any) => d.originalName.startsWith("Página"));
   const batchDocs = documents.filter((d: any) => !d.originalName.startsWith("Página"));
 
-  const isProcessing = batchDocs.some((d: any) => d.status === 'PROCESSING');
+  const isProcessing = batchDocs.some((d: any) => d.status === 'PROCESSING' || d.status === 'PENDING');
   
   useEffect(() => {
     if (isProcessing) {

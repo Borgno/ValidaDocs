@@ -1,12 +1,43 @@
+version: '3.8'
+
 services:
-  validadocs-db:
-    image: public.ecr.aws/docker/library/postgres:16-alpine
-    container_name: validadocs-db
-    restart: always
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: validadocs-app
+    ports:
+      - "3010:3000"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: validadocs
+      - RUNNING_IN_DOCKER=true
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:5432/${POSTGRES_DB:-validadocs}?schema=public
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT:-minio}
+      - MINIO_PORT=${MINIO_PORT:-9000}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-admin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-admin123}
+      - MINIO_BUCKET=${MINIO_BUCKET:-validadocs}
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+      - PORT=3000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: validadocs-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgrespassword}
+      - POSTGRES_DB=${POSTGRES_DB:-validadocs}
+    # ports:
+    #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -15,11 +46,13 @@ services:
       timeout: 5s
       retries: 5
 
+    restart: unless-stopped
 
-  validadocs-redis:
-    image: public.ecr.aws/docker/library/redis:7-alpine
+  redis:
+    image: redis:7-alpine
     container_name: validadocs-redis
-    restart: always
+    # ports:
+    #   - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -28,62 +61,31 @@ services:
       timeout: 5s
       retries: 5
 
+    restart: unless-stopped
 
-  validadocs-minio:
-    image: quay.io/minio/minio
+  minio:
+    image: minio/minio:latest
     container_name: validadocs-minio
-    restart: always
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin123
-    expose:
-      - "9000"
-      - "9001"
-
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-admin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-admin123}
+    # ports:
+    #   - "9000:9000"
+    #   - "9001:9001"
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "mc ready local || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+    restart: unless-stopped
 
 
-  validadocs-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: validadocs-app
-    container_name: validadocs-app
-    restart: always
-    expose:
-      - "3000"
-
-    environment:
-      RUNNING_IN_DOCKER: "true"
-      DATABASE_URL: "postgresql://postgres:postgrespassword@validadocs-db:5432/validadocs?schema=public"
-      REDIS_URL: "redis://validadocs-redis:6379"
-      MINIO_ENDPOINT: "validadocs-minio"
-      MINIO_PORT: "9000"
-      MINIO_ACCESS_KEY: "admin"
-      MINIO_SECRET_KEY: "admin123"
-      MINIO_BUCKET: "validadocs"
-      MINIO_USE_SSL: "false"
-      PORT: 3000
-      HOST: "0.0.0.0"
-    depends_on:
-      validadocs-db:
-        condition: service_healthy
-      validadocs-redis:
-        condition: service_healthy
-      validadocs-minio:
-        condition: service_healthy
 
 volumes:
   postgres_data:
-    name: validadocs_postgres_data
   redis_data:
-    name: validadocs_redis_data
   minio_data:
-    name: validadocs_minio_data
