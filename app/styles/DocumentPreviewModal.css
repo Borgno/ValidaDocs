@@ -1,15 +1,6 @@
 /* app/styles/DocumentPreviewModal.css - Chronos Mono Blue Aesthetics */
 
 .modal-overlay {
-  --bg: transparent;
-  --surface: rgba(15, 18, 23, 0.7);
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f3f5f8;
-  --text-muted: #8e99a7;
-  --primary: #0066ff;
-  --success: #00d084;
-  --radius-md: 4px;
-  --radius-xl: 12px;
 
   position: fixed;
   inset: 0;
@@ -30,7 +21,7 @@
 }
 
 .modal-content-glass {
-  background: var(--surface);
+  background: var(--card-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   width: 100%;
@@ -40,14 +31,14 @@
   border-radius: 12px;
   box-shadow: 
     0 32px 80px rgba(0, 0, 0, 0.5),
-    0 0 0 1px var(--border),
+    0 0 0 1px var(--glass-border),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
 }
 
 @keyframes modalSlideUp {
@@ -66,8 +57,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  background: rgba(15, 18, 23, 0.5);
-  border-bottom: 1px solid var(--border);
+  background: var(--surface-light);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .modal-header-wrapper {
@@ -93,8 +84,8 @@
 }
 
 .modal-icon-container.success {
-  background: rgba(0, 208, 132, 0.1);
-  border: 1px solid rgba(0, 208, 132, 0.2);
+  background: rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(0, 102, 255, 0.2);
 }
 
 .modal-header-subtitle {
@@ -109,7 +100,7 @@
 .modal-header-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: white;
+  color: var(--text);
   margin: 0;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -149,20 +140,20 @@
 }
 
 .btn-download-modal.success {
-  background: rgba(0, 208, 132, 0.1);
-  border: 1px solid rgba(0, 208, 132, 0.3);
+  background: rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(0, 102, 255, 0.3);
   color: var(--success);
 }
 
 .btn-download-modal.success:hover {
   background: var(--success);
   color: white;
-  box-shadow: 0 0 12px rgba(0, 208, 132, 0.2);
+  box-shadow: 0 0 12px rgba(0, 102, 255, 0.2);
 }
 
 .btn-close-modal {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
+  background: rgba(128, 128, 128, 0.02);
+  border: 1px solid var(--glass-border);
   color: var(--text-muted);
   cursor: pointer;
   padding: 8px;
@@ -174,14 +165,14 @@
 }
 
 .btn-close-modal:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(128, 128, 128, 0.08);
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
 .modal-viewer {
   flex: 1;
-  background: #090b0e;
+  background: var(--bg);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -202,8 +193,8 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #0d1015;
-  color: #f3f5f8;
+  background: var(--bg);
+  color: var(--text);
   overflow: hidden;
 }
 
@@ -253,8 +244,8 @@
   align-items: center;
   gap: 20px;
   padding: 16px 24px;
-  background: rgba(15, 18, 23, 0.4);
-  border-bottom: 1px solid var(--border);
+  background: var(--surface-light);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .search-input-wrapper {
@@ -274,11 +265,11 @@
 
 .search-input {
   width: 100%;
-  background: rgba(15, 18, 23, 0.6);
-  border: 1px solid var(--border);
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 10px 12px 10px 38px;
-  color: white;
+  color: var(--text);
   font-size: 0.8rem;
   outline: none;
   transition: all 0.2s ease;
@@ -298,7 +289,7 @@
 }
 
 .sheet-stats strong {
-  color: white;
+  color: var(--text);
 }
 
 /* Table styling */
@@ -318,7 +309,7 @@
 .sheet-table th {
   position: sticky;
   top: 0;
-  background: #0d1015;
+  background: var(--bg);
   color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
@@ -326,13 +317,13 @@
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   padding: 12px 16px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 2px solid var(--glass-border);
   z-index: 10;
 }
 
 .sheet-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--glass-border);
   color: var(--text);
   vertical-align: middle;
 }
@@ -342,7 +333,7 @@
 }
 
 .sheet-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(128, 128, 128, 0.05);
 }
 
 .sheet-table td.mono {
@@ -357,7 +348,7 @@
 
 .sheet-table td.font-bold {
   font-weight: 700;
-  color: white;
+  color: var(--text);
 }
 
 .sheet-empty-table {

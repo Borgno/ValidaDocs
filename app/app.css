@@ -9,7 +9,7 @@
   --text: #f3f5f8;
   --text-muted: #8e99a7;
   --text-dim: #556070;
-  --success: #00d084;
+  --success: #0066ff;
   --error: #ff4a5a;
   --warning: #ffb700;
   --glass-border: rgba(255, 255, 255, 0.08);
@@ -26,6 +26,30 @@
   --space-5: 40px;
   --space-6: 48px;
   --space-8: 64px;
+  
+  --noise-opacity: 0.5;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"], .light {
+  --primary: #0066ff;
+  --primary-glow: rgba(0, 102, 255, 0.08);
+  --secondary: #0044cc;
+  --bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #0d1117;
+  --text-muted: #5a6472;
+  --text-dim: #9aa3ad;
+  --success: #0066ff;
+  --error: #e03048;
+  --warning: #d97706;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --border-focus: rgba(0, 102, 255, 0.4);
+  --surface: rgba(0, 0, 0, 0.03);
+  --surface-light: rgba(0, 0, 0, 0.05);
+  
+  --noise-opacity: 0.25;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -61,7 +85,7 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.5;
+  opacity: var(--noise-opacity);
 }
 
 h1,
@@ -224,7 +248,7 @@ h3 {
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   height: fit-content;
 }
 
@@ -1775,4 +1799,69 @@ input:focus {
   border-color: var(--primary);
   background: var(--surface-light);
   color: var(--text);
+}
+
+/* ========================================= */
+/* LIGHT MODE OVERRIDES                      */
+/* ========================================= */
+.light .sidebar { background: var(--card-bg); box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06); }
+.light .sidebar-toggle:hover { background: var(--surface-light); color: var(--text); }
+.light .sidebar-link:hover { background: var(--surface-light); color: var(--text); }
+.light .sidebar-link.active { background: rgba(0, 102, 255, 0.06); }
+
+.light .page-title { color: var(--text); }
+.light .subtitle { color: var(--text-muted); }
+
+.light .icon-btn { background: white; border-color: rgba(0,0,0,0.12); color: var(--text-muted); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06); }
+.light .icon-btn:hover { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px var(--primary-glow); }
+
+.light input, .light .input, .light .select, .light select, .light textarea {
+  background: white;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.light input:focus, .light .input:focus, .light .select:focus, .light select:focus, .light textarea:focus {
+  background: white;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+.light .btn-add { border: 1px dashed rgba(0, 0, 0, 0.18); background: transparent; }
+.light .btn-add:hover { background: rgba(0, 102, 255, 0.03); border-color: var(--primary); color: var(--primary); }
+
+.light .modal-overlay { background: rgba(13, 17, 23, 0.4); }
+.light .modal-content {
+  background: white;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 24px 56px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.light .btn-close { background: var(--surface-light); border-color: var(--glass-border); color: var(--text-muted); }
+.light .btn-close:hover { background: rgba(224, 48, 72, 0.08); color: var(--error); border-color: rgba(224, 48, 72, 0.2); }
+
+.light .stat-card { background: white; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); }
+.light .info-box { background: white; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); }
+.light .callout { background: rgba(0, 0, 0, 0.02); }
+
+.light .missing { color: var(--text); }
+
+/* Badges e tags */
+.light .badge-primary { background: rgba(0, 102, 255, 0.1); color: #0050cc; border-color: rgba(0, 102, 255, 0.2); }
+.light .badge-success { background: rgba(0, 102, 255, 0.08); color: #0050cc; border-color: rgba(0, 102, 255, 0.15); }
+.light .badge-error { background: rgba(224, 48, 72, 0.1); color: #b02030; border-color: rgba(224, 48, 72, 0.2); }
+.light .badge-warning { background: rgba(217, 119, 6, 0.1); color: #92580a; border-color: rgba(217, 119, 6, 0.2); }
+.light .badge-neutral { background: var(--surface-light); color: var(--text-muted); border-color: var(--glass-border); }
+
+/* Button specifics */
+.light .btn-solid { color: white; background: var(--primary); }
+.light .btn-ghost { background: white; color: var(--text); border-color: var(--glass-border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06); }
+.light .btn-ghost:hover { background: var(--surface-light); color: var(--text); border-color: rgba(0, 0, 0, 0.14); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+.light .btn-danger { color: var(--error); border-color: var(--error); }
+.light .btn-danger:hover { color: white; background: var(--error); box-shadow: 0 4px 12px rgba(224, 48, 72, 0.2); }
+.light .btn-save, .light .btn-register { color: var(--primary); border-color: var(--primary); }
+.light .btn-save:hover, .light .btn-register:hover { color: white; background: var(--primary); box-shadow: 0 0 16px var(--primary-glow); }
+
+@media (max-width: 800px) {
+  .light .sidebar { box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06); }
+  .light body::before { display: none; }
 }

@@ -26,7 +26,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #111419;
+  background: var(--card-bg);
   border: 1px solid rgba(255, 74, 90, 0.35);
   border-radius: 12px;
   padding: 24px 24px 20px 24px;
@@ -68,14 +68,14 @@
 .cdd-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #f3f5f8;
+  color: var(--text);
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .cdd-description {
   font-size: 0.85rem;
-  color: #8e99a7;
+  color: var(--text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -87,7 +87,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #8e99a7;
+  color: var(--text-muted);
   padding: 4px;
   border-radius: 4px;
   display: flex;
@@ -97,8 +97,8 @@
 }
 
 .cdd-btn-close:hover {
-  color: #f3f5f8;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  background: rgba(128, 128, 128, 0.1);
 }
 
 .cdd-actions {
@@ -106,13 +106,13 @@
   gap: 10px;
   justify-content: flex-end;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--glass-border);
 }
 
 .cdd-btn-cancel {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #8e99a7;
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
   font-size: 0.85rem;
   font-weight: 600;
   padding: 9px 20px;
@@ -123,8 +123,8 @@
 }
 
 .cdd-btn-cancel:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  color: #f3f5f8;
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
 .cdd-btn-confirm {
@@ -148,4 +148,17 @@
   background: rgba(255, 74, 90, 0.22);
   border-color: rgba(255, 74, 90, 0.55);
   box-shadow: 0 0 12px rgba(255, 74, 90, 0.15);
+}
+
+/* ========================================= */
+/* LIGHT MODE OVERRIDES                      */
+/* ========================================= */
+.light .cdd-panel {
+  box-shadow: 0 0 0 1px rgba(224, 48, 72, 0.1), 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 40px rgba(224, 48, 72, 0.08);
+}
+.light .cdd-btn-cancel {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+.light .cdd-btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.03);
 }

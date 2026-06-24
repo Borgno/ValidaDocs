@@ -1,25 +1,6 @@
 /* app/styles/home.css - Chronos Mono Blue Aesthetics */
 
 .home-dashboard-container {
-  --bg: transparent;
-  --surface: #0f1217;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --text: #f3f5f8;
-  --text-muted: #8e99a7;
-  
-  --primary: #0066ff;
-  --primary-glow: rgba(0, 102, 255, 0.12);
-  --success: #00d084;
-  --success-glow: rgba(0, 208, 132, 0.12);
-  
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-  
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
-
   background-color: var(--bg);
   color: var(--text);
   max-width: 1400px;
@@ -69,7 +50,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: white;
+  color: var(--text);
   margin: 0 0 4px 0;
   text-transform: uppercase;
 }
@@ -94,14 +75,14 @@
 }
 
 .home-stat-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--card-shadow);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 240px;
   justify-content: space-between;
@@ -141,8 +122,8 @@
   height: 56px;
   border-radius: 12px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border);
+  background: var(--surface-light);
+  border: 1px solid var(--glass-border);
   transition: all 0.25s ease;
 }
 
@@ -166,7 +147,7 @@
 .home-card-title {
   font-size: 1.15rem;
   font-weight: 600;
-  color: white;
+  color: var(--text);
   margin: 0;
 }
 
@@ -192,8 +173,8 @@
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: white;
+  border: 1px solid var(--glass-border);
+  color: var(--text);
   background: transparent;
   margin-top: auto;
 }
@@ -203,4 +184,35 @@
   color: white;
   border-color: var(--primary);
   box-shadow: 0 0 18px var(--primary-glow);
+}
+
+/* ========================================= */
+/* LIGHT MODE OVERRIDES                      */
+/* ========================================= */
+.light .home-dashboard-container {
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+}
+
+.light .home-title, .light .home-card-title {
+  color: var(--text);
+}
+
+.light .home-card-icon-wrapper {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.light .card-interactive:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.light .home-cta-button {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.light .home-cta-button:hover {
+  color: white;
 }

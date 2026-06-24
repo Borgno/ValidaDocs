@@ -1,7 +1,7 @@
 import "./app.css";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, NavLink, useLocation, useNavigation } from "react-router";
 import { useState } from "react";
-import { LayoutDashboard, CheckSquare, FileText, Menu } from "lucide-react";
+import { LayoutDashboard, CheckSquare, FileText, Menu, Sun, Moon } from "lucide-react";
 import { requestLoggerMiddleware } from "./middleware/requestLogger";
 
 export const middleware = [requestLoggerMiddleware];
@@ -55,6 +55,28 @@ function Sidebar() {
           </NavLink>
         </div>
       </div>
+      <div className="sidebar-bottom">
+        <button 
+          className="sidebar-toggle" 
+          onClick={() => {
+            const isLight = document.documentElement.classList.contains('light');
+            if (isLight) {
+              document.documentElement.classList.remove('light');
+              localStorage.setItem('theme', 'dark');
+            } else {
+              document.documentElement.classList.add('light');
+              localStorage.setItem('theme', 'light');
+            }
+            // Trigger state update to re-render icon if needed
+            window.dispatchEvent(new Event('themechange'));
+          }} 
+          title="Alternar Tema"
+          style={{ marginBottom: '16px' }}
+        >
+          <Sun size={24} className="sidebar-icon sun-icon" />
+          {isExpanded && <span className="sidebar-text">Tema</span>}
+        </button>
+      </div>
     </aside>
   );
 }
@@ -78,6 +100,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <title>ValidaDocs</title>
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'light') {
+                  document.documentElement.classList.add('light');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
       </head>
       <body>
         <ProgressBar />
