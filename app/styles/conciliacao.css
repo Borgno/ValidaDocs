@@ -612,6 +612,29 @@
   color: #ff4d4d;
 }
 
+.btn-download-batch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-glow);
+  color: var(--primary);
+  border: 1px solid rgba(0, 102, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-download-batch:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
 /* ========================================= */
 /* LIGHT MODE OVERRIDES                      */
 /* ========================================= */

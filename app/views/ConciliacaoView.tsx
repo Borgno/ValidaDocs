@@ -1,6 +1,6 @@
 import { Form, useActionData, useNavigation, useLoaderData, useRevalidator, useFetcher } from "react-router";
 import { useState, useEffect } from "react";
-import { FileText, FileSpreadsheet, Package, History, CheckCircle2, XCircle, Play, Loader2, ArrowRight, CheckSquare, Trash2 } from "lucide-react";
+import { FileText, FileSpreadsheet, Package, History, CheckCircle2, XCircle, Play, Loader2, ArrowRight, CheckSquare, Trash2, Download } from "lucide-react";
 import { DocumentPreviewModal } from "../components/DocumentPreviewModal";
 import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog";
 import "../styles/conciliacao.css";
@@ -243,13 +243,25 @@ export function ConciliacaoView({ documents, actionData }: ConciliacaoViewProps)
               
               return (
                 <div key={batchId} className="batch-group">
-                  <div className="batch-group-header">
-                    <Package size={16} color="var(--primary)" />
-                    <span>Lote: {batchTitle}</span>
+                  <div className="batch-group-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Package size={16} color="var(--primary)" />
+                      <span>Lote: {batchTitle}</span>
+                      {parentDoc && (
+                        <span className="batch-group-date">
+                          {new Date(parentDoc.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })} às {new Date(parentDoc.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
+                    </div>
                     {parentDoc && (
-                      <span className="batch-group-date">
-                        {new Date(parentDoc.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })} às {new Date(parentDoc.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <a 
+                        href={`/api/batch-download/${batchId}`} 
+                        className="btn-download-batch"
+                        title="Baixar lote compactado"
+                      >
+                        <Download size={14} />
+                        BAIXAR
+                      </a>
                     )}
                   </div>
                   
