@@ -92,7 +92,7 @@ export function processConciliacaoLogic(
   // Caso único: aceita diretamente sem precisar de fuzzy
   if (candidatosPorValor.length === 1) {
     const candidato = candidatosPorValor[0];
-    const cte = candidato.CTE ? String(candidato.CTE).trim().replace("/", "-") : "SEM_CTE";
+    const cte = candidato.CTE ? String(candidato.CTE).trim().split(/[-/]/)[0].trim() : "SEM_CTE";
     return {
       success: true,
       newFileName: `comprovante pag CTE ${sanitizarNome(cte)}.pdf`,
@@ -129,7 +129,7 @@ export function processConciliacaoLogic(
     // O Fuse.js retorna o score invertido: 0 = perfeito, 1 = péssimo
     const melhor = resultados[0];
     const candidato = melhor.item;
-    const cte = candidato.CTE ? String(candidato.CTE).trim().replace("/", "-") : "SEM_CTE";
+    const cte = candidato.CTE ? String(candidato.CTE).trim().split(/[-/]/)[0].trim() : "SEM_CTE";
 
     return {
       success: true,
