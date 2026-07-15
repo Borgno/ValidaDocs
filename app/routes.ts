@@ -7,4 +7,5 @@ export default [
   route("api/document/:id", "routes/api.document.$id.tsx"),
   route("api/document/:id/sheet", "routes/api.document.$id.sheet.tsx"),
   route("api/batch-download/:id", "routes/api.batch-download.$id.tsx"),
+  route("api/config", "routes/api.config.ts"),
 ] satisfies RouteConfig;

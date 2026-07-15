@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { FileText, Download, X, Search } from "lucide-react";
-import "../styles/DocumentPreviewModal.css";
+import { FileText, Download, X, Search, Loader2 } from "lucide-react";
 
 interface DocumentPreviewModalProps {
   previewDoc: { id: string; name: string; isSpreadsheet?: boolean } | null;
@@ -14,7 +13,6 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
 
   const isSuccess = theme === "success";
   
-  // Asseguramos que o modal só tentará montar no client-side
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -108,100 +106,107 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
   };
 
   const modalContent = (
-    <div onClick={() => setPreviewDoc(null)} className="modal-overlay">
-      <div onClick={e => e.stopPropagation()} className="modal-content-glass">
+    <div onClick={() => setPreviewDoc(null)} className="fixed inset-0 bg-black/40 dark:bg-black/55 backdrop-blur-md flex items-center justify-center p-5 z-[1000] animate-fadeIn">
+      <div onClick={e => e.stopPropagation()} className="w-full max-w-[1300px] h-[calc(100vh-40px)] flex flex-col bg-bg border border-glass-border rounded-2xl shadow-modal animate-modalIn relative overflow-hidden">
+        
         {/* Header do modal */}
-        <div className="modal-header">
-          <div className="modal-header-wrapper">
-            <div className={`modal-icon-container ${isSuccess ? 'success' : 'primary'}`}>
-              <FileText size={24} color={isSuccess ? "var(--success)" : "var(--primary)"} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 px-5 py-3 bg-surface border-b border-glass-border">
+          <div className="flex items-center gap-4">
+            <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSuccess ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>
+              <FileText size={24} />
             </div>
-            <div>
-              <div className="modal-header-subtitle">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
                 {previewDoc.isSpreadsheet ? "VISUALIZAÇÃO DE PLANILHA" : "VISUALIZAÇÃO DE DOCUMENTO"}
-              </div>
-              <div className="modal-header-title">
+              </span>
+              <h2 className="text-[15px] font-semibold text-text truncate max-w-[300px] md:max-w-[500px]" title={previewDoc.name}>
                 {previewDoc.name}
-              </div>
+              </h2>
             </div>
           </div>
-          <div className="modal-actions-wrapper">
+          <div className="flex items-center gap-3">
             <a 
               href={previewDoc.isSpreadsheet ? `/api/document/${previewDoc.id}?spreadsheet=true` : `/api/document/${previewDoc.id}?download=true`} 
               download={previewDoc.name}
-              className={`btn-download-modal ${isSuccess ? 'success' : 'primary'}`}
+              className={`inline-flex items-center justify-center gap-2 border bg-transparent font-bold uppercase tracking-wide text-xs px-4 py-2 rounded-md transition-all duration-200 ease-ui hover:text-white ${isSuccess ? 'border-success text-success hover:bg-success' : 'border-primary text-primary hover:bg-primary'}`}
             >
-              <Download size={18} /> Baixar
+              <Download size={16} /> BAIXAR
             </a>
             <button 
               onClick={() => setPreviewDoc(null)} 
-              className="btn-close-modal" 
+              className="p-1.5 shrink-0 rounded-md bg-transparent text-text-muted flex items-center justify-center transition-all duration-200 hover:bg-error/10 hover:text-error" 
+              title="Fechar"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Viewer inline */}
-        <div className="modal-viewer">
+        <div className="flex-1 min-h-0 bg-bg relative flex flex-col">
           {loading ? (
-            <div className="sheet-loading">
-              <div className="spinner" />
-              <span>{previewDoc.isSpreadsheet ? "Carregando dados da planilha..." : "Carregando documento PDF..."}</span>
+            <div className="flex flex-col items-center justify-center h-full text-text-muted gap-4">
+              <Loader2 className="animate-spin text-primary" size={32} />
+              <span className="text-sm font-inter">
+                {previewDoc.isSpreadsheet ? "Carregando dados da planilha..." : "Carregando documento PDF..."}
+              </span>
             </div>
           ) : error ? (
-            <div className="sheet-error">
-              <span>{error}</span>
+            <div className="flex items-center justify-center h-full">
+              <div className="bg-error/10 border border-error/20 text-error px-4 py-3 rounded-lg text-sm font-inter">
+                {error}
+              </div>
             </div>
           ) : previewDoc.isSpreadsheet ? (
-            <div className="sheet-preview-container">
-              <div className="sheet-search-bar">
-                <div className="search-input-wrapper">
-                  <Search size={16} className="search-icon" />
+            <div className="flex flex-col h-full">
+              <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-glass-border gap-4 shrink-0 bg-card-bg">
+                <div className="relative flex items-center w-full sm:w-72">
+                  <Search size={16} className="absolute left-4 text-text-muted peer-focus:text-primary" />
                   <input 
                     type="text" 
                     placeholder="Buscar em todas as colunas..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
+                    className="h-10 w-full bg-surface border border-glass-border rounded-lg pl-11 pr-4 text-sm text-text placeholder:text-text-dim placeholder:font-normal focus:border-primary focus:ring-1 focus:ring-primary/40 outline-none transition-all peer"
                   />
                 </div>
-                <div className="sheet-stats">
-                  <span>Total de itens: <strong>{sheetData?.rows.length || 0}</strong></span>
+                <div className="flex gap-4 text-sm font-inter text-text-muted">
+                  <span>Total: <strong className="text-text font-mono">{sheetData?.rows.length || 0}</strong></span>
                   {filteredRows.length !== (sheetData?.rows.length || 0) && (
-                    <span>Encontrados: <strong>{filteredRows.length}</strong></span>
+                    <span>Encontrados: <strong className="text-text font-mono">{filteredRows.length}</strong></span>
                   )}
                 </div>
               </div>
 
-              <div className="sheet-table-wrapper">
-                <table className="sheet-table">
-                  <thead>
+              <div className="flex-1 overflow-auto bg-card-bg">
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 bg-surface-light border-b border-glass-border z-10 backdrop-blur-md">
                     <tr>
                       {sheetData?.headers.map((header, idx) => (
-                        <th key={idx} className={isCurrencyColumn(header) ? "text-right" : ""}>
+                        <th key={idx} className={`py-3 px-4 text-xs font-bold text-text-dim uppercase tracking-widest whitespace-nowrap ${isCurrencyColumn(header) ? "text-right" : ""}`}>
                           {formatHeader(header)}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="font-inter">
                     {filteredRows.length === 0 ? (
                       <tr>
-                        <td colSpan={sheetData?.headers.length || 1} className="sheet-empty-table">
+                        <td colSpan={sheetData?.headers.length || 1} className="py-12 text-center text-text-muted text-sm border-b border-glass-border">
                           {searchQuery ? "Nenhum registro encontrado para a busca." : "A planilha não possui dados."}
                         </td>
                       </tr>
                     ) : (
                       filteredRows.map((row, rowIdx) => (
-                        <tr key={rowIdx}>
+                        <tr key={rowIdx} className="border-b border-glass-border hover:bg-surface-light/50 transition-colors">
                           {sheetData?.headers.map((header, colIdx) => {
                             const val = row[colIdx];
                             const isCurrency = isCurrencyColumn(header);
+                            const isMono = header === "nr_carta_frete" || isCurrency;
                             return (
                               <td 
                                 key={colIdx} 
-                                className={`${isCurrency ? "mono text-right font-bold" : ""} ${header === "nr_carta_frete" ? "mono" : ""}`}
+                                className={`py-3 px-4 text-sm text-text whitespace-nowrap ${isMono ? "font-mono font-medium" : ""} ${isCurrency ? "text-right" : ""}`}
                               >
                                 {formatCell(val, header)}
                               </td>
@@ -218,7 +223,7 @@ export function DocumentPreviewModal({ previewDoc, setPreviewDoc, theme = "prima
             <embed 
               src={pdfUrl} 
               type="application/pdf" 
-              className="modal-pdf-embed"
+              className="w-full h-full rounded-b-xl"
             />
           ) : null}
         </div>
