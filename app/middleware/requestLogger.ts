@@ -1,7 +1,6 @@
-/**
- * Global Middleware for logging incoming HTTP requests on the server side
- * to track processing time and response status.
- */
+
+ // Global Middleware for logging incoming HTTP requests on the server side
+ // to track processing time and response status.
 export async function requestLoggerMiddleware(
   { request }: { request: Request },
   next: () => Promise<Response>

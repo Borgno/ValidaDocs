@@ -1,15 +1,17 @@
-import { Worker, Job } from "bullmq";
-import { redisConnection } from "../services/redis.server";
-import { downloadFromMinIO } from "../services/storage.server";
-import { prisma } from "../services/db.server";
+import { Worker } from "bullmq";
+import { redisConnection } from "./app/services/redis.server";
+import { downloadFromMinIO } from "./app/services/storage.server";
+import { prisma } from "./app/services/db.server";
 import { PDFParse } from "pdf-parse";
 
-export const comprovanteFatWorker = new Worker(
-  "DocumentQueue",
-  async (job: Job) => {
-    if (job.name !== "process-comprovante-fat") return;
+console.log("Starting temporary worker...");
 
+const worker = new Worker(
+  "DocumentQueue",
+  async (job) => {
+    if (job.name !== "process-comprovante-fat") return;
     const { documentId } = job.data;
+    console.log("Processing job for document", documentId);
 
     try {
       await prisma.document.update({
@@ -20,20 +22,15 @@ export const comprovanteFatWorker = new Worker(
       const doc = await prisma.document.findUnique({ where: { id: documentId } });
       if (!doc?.originalStorageKey) throw new Error("Documento não encontrado.");
 
-      // 1. Download do PDF
       const pdfBuffer = await downloadFromMinIO(doc.originalStorageKey);
-
-      // 2. Extrai texto
+      
       const parser = new PDFParse({ data: pdfBuffer });
       const { text } = await parser.getText();
-
-      // Lógica idêntica ao N8N: pega a linha 1 do texto bruto
+      
       const codigo = text.split("\n")[1]?.trim() || "SEM_CODIGO";
-
       const processedName = `${codigo}.pdf`;
-      console.log(`[ComprovanteFAT] Código extraído: "${codigo}" → renomeando para: ${processedName}`);
+      console.log(`Extracted: ${codigo} -> ${processedName}`);
 
-      // 4. Atualiza o nome no banco
       await prisma.document.update({
         where: { id: documentId },
         data: {
@@ -42,16 +39,16 @@ export const comprovanteFatWorker = new Worker(
           processedAt: new Date(),
         },
       });
-
-      console.log(`[ComprovanteFAT] ✅ Documento ${documentId} renomeado com sucesso.`);
+      console.log("Completed!");
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Erro interno";
-      console.error(`[ComprovanteFAT] ❌ ${msg}`);
+      console.error("Worker Error:", error);
       await prisma.document.update({
         where: { id: documentId },
-        data: { status: "FAILED", errorMessage: msg },
+        data: { status: "FAILED", errorMessage: error instanceof Error ? error.message : String(error) },
       });
     }
   },
-  { connection: redisConnection as any, concurrency: 2 }
+  { connection: redisConnection as any }
 );
+
+setTimeout(() => process.exit(0), 10000);
