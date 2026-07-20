@@ -74,6 +74,34 @@ export function HomeView() {
             </Link>
           </div>
         </div>
+
+        {/* CARD 3: PIX ADM */}
+        <div className="bg-card-bg border border-glass-border rounded-xl p-6 shadow-sm flex flex-col transition-all hover:border-border-focus hover:shadow-md h-[240px]">
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-[3px] h-3.5 bg-primary rounded-full"></div>
+            <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+              PIX ADM
+            </h2>
+          </div>
+          
+          <div className="flex items-start gap-4 mb-6">
+            <div className="w-14 h-14 shrink-0 bg-primary/10 border border-glass-border rounded-xl flex items-center justify-center shadow-primary-glow border-primary/30">
+              <FileText size={28} className="text-primary" strokeWidth={1.5} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <h3 className="text-[18px] font-semibold text-text">Pix ADM</h3>
+              <p className="text-[13px] font-inter text-text-muted leading-relaxed">
+                Gerencie e processe os comprovantes de Pix administrativos com padronização automática.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-auto">
+            <Link to="/pix-adm" className="w-full inline-flex items-center justify-center gap-2 border border-primary text-primary bg-transparent font-medium uppercase tracking-wide text-[13px] px-6 py-3 rounded-lg transition-all duration-200 hover:bg-primary hover:text-white">
+              ACESSAR PAINEL <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

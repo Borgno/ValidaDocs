@@ -27,6 +27,7 @@ enum DocumentStatus {
 enum AutomationType {
   CONCILIACAO_CTE
   COMPROVANTE_FAT
+  PIX_ADM
 }
 
 model Document {

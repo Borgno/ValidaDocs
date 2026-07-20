@@ -2,9 +2,9 @@ import { Job } from "bullmq";
 import { downloadFromMinIO, uploadBufferToMinIO, deleteFromMinIO } from "../../services/storage.server";
 import { prisma } from "../../services/db.server";
 import { PDFParse } from "pdf-parse";
-import { extractFatName } from "./extractor";
+import { extractPixAdmData } from "./extractor";
 
-export async function handleComprovanteFatJob(job: Job) {
+export async function handlePixAdmJob(job: Job) {
   const { documentId } = job.data;
 
   try {
@@ -23,15 +23,15 @@ export async function handleComprovanteFatJob(job: Job) {
     const parser = new PDFParse({ data: pdfBuffer });
     const { text } = await parser.getText();
 
-    // 3. Usa o especialista de domínio (extractor) para pegar e formatar o nome
-    const processedName = extractFatName(text);
-    const processedStorageKey = `comprovantes-fat/processed/doc-${documentId}/${processedName}`;
-    console.log(`[ComprovanteFAT] Nome processado pelo especialista: ${processedName}`);
+    // 3. Usa o especialista de domínio (extractor) para processar os dados
+    const processedName = extractPixAdmData(text);
+    const processedStorageKey = `pix-adm/processed/doc-${documentId}/${processedName}`;
+    console.log(`[PixADM] Nome processado pelo especialista: ${processedName}`);
 
-    // 3. Upload do arquivo renomeado de volta para o Storage
+    // 4. Upload do arquivo renomeado de volta para o Storage
     await uploadBufferToMinIO(pdfBuffer, processedStorageKey);
 
-    // 4. Atualiza o banco com o novo nome e o caminho do arquivo processado
+    // 5. Atualiza o banco com o novo nome e o caminho do arquivo processado
     await prisma.document.update({
       where: { id: documentId },
       data: {
@@ -42,15 +42,15 @@ export async function handleComprovanteFatJob(job: Job) {
       },
     });
 
-    console.log(`[ComprovanteFAT] ✅ Documento ${documentId} renomeado com sucesso.`);
+    console.log(`[PixADM] ✅ Documento ${documentId} processado com sucesso.`);
 
     if (doc.originalStorageKey) {
       await deleteFromMinIO(doc.originalStorageKey);
-      console.log(`[ComprovanteFAT] 🗑️ Arquivo original (raw) deletado: ${doc.originalStorageKey}`);
+      console.log(`[PixADM] 🗑️ Arquivo original (raw) deletado: ${doc.originalStorageKey}`);
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";
-    console.error(`[ComprovanteFAT] ❌ ${msg}`);
+    console.error(`[PixADM] ❌ ${msg}`);
     await prisma.document.update({
       where: { id: documentId },
       data: { status: "FAILED", errorMessage: msg },

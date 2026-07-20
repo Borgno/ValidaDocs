@@ -2,6 +2,7 @@ import { Worker, Job } from "bullmq";
 import { redisConnection } from "../services/redis.server";
 import { handleConciliacaoJob } from "../domain/conciliacao/handler.server";
 import { handleComprovanteFatJob } from "../domain/comprovantes-fat/handler.server";
+import { handlePixAdmJob } from "../domain/pix-adm/handler.server";
 
 export const documentWorker = new Worker(
   "DocumentQueue",
@@ -14,6 +15,9 @@ export const documentWorker = new Worker(
         break;
       case "process-comprovante-fat":
         await handleComprovanteFatJob(job);
+        break;
+      case "process-pix-adm":
+        await handlePixAdmJob(job);
         break;
       default:
         console.warn(`[DocumentWorker] Job desconhecido recebido: ${job.name}`);

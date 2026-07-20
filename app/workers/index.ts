@@ -6,4 +6,4 @@ documentWorker.on('error', err => console.error(`[BullMQ] 🚨 Erro no Worker Ce
 
 console.log("🚀 [ValidaDocs] Background Worker Central (BullMQ) Bootstrapped!");
 
-export { documentWorker };
+// export removed to satisfy knip

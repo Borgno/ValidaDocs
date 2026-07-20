@@ -83,6 +83,16 @@ function Sidebar({ theme, isExpanded, setIsExpanded }: { theme: "light" | "dark"
                 </>
               )}
             </NavLink>
+
+            <NavLink to="/pix-adm" prefetch="render" className={({ isActive }) => `relative mx-4 h-12 flex items-center rounded-xl transition-all ${isExpanded ? 'px-4' : 'w-12 mx-auto justify-center'} ${isActive ? 'text-primary bg-transparent font-medium' : 'text-text-muted bg-transparent hover:bg-surface-light hover:text-text font-normal'}`} title="Pix ADM">
+              {({ isActive }) => (
+                <>
+                  <FileText size={22} strokeWidth={1.5} className="shrink-0" />
+                  <span className={`ml-3 text-[14px] whitespace-nowrap transition-opacity delay-100 ${isExpanded ? 'opacity-100' : 'opacity-0 hidden'}`}>Pix ADM</span>
+                  {isActive && <span className="absolute -left-4 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-primary" />}
+                </>
+              )}
+            </NavLink>
           </nav>
         </div>
 
@@ -110,6 +120,14 @@ function Sidebar({ theme, isExpanded, setIsExpanded }: { theme: "light" | "dark"
             )}
           </NavLink>
           <NavLink to="/comprovantes-fat" prefetch="render" className={({ isActive }) => `relative w-11 h-11 flex items-center justify-center transition-colors ${isActive ? 'text-primary' : 'text-text-muted hover:text-text'}`}>
+            {({ isActive }) => (
+              <>
+                <FileText size={22} />
+                {isActive && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-b bg-primary" />}
+              </>
+            )}
+          </NavLink>
+          <NavLink to="/pix-adm" prefetch="render" className={({ isActive }) => `relative w-11 h-11 flex items-center justify-center transition-colors ${isActive ? 'text-primary' : 'text-text-muted hover:text-text'}`}>
             {({ isActive }) => (
               <>
                 <FileText size={22} />

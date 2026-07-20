@@ -6,6 +6,8 @@ export default [
   route("comprovantes-fat", "routes/comprovantes-fat.tsx"),
   route("api/document/:id", "routes/api.document.$id.tsx"),
   route("api/document/:id/sheet", "routes/api.document.$id.sheet.tsx"),
-  route("api/batch-download/:id", "routes/api.batch-download.$id.tsx"),
+  route("api/batch-download/:id", "domain/conciliacao/api.batch-download.ts"),
+  route("api/pix-download/:date", "domain/pix-adm/api.pix-download.ts"),
   route("api/config", "routes/api.config.ts"),
+  route("pix-adm", "routes/pix-adm.tsx"),
 ] satisfies RouteConfig;

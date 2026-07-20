@@ -2,11 +2,11 @@ import { uploadToMinIO, deleteFromMinIO, fileExistsInMinIO } from "../services/s
 import { enqueueJob } from "../jobs/queue.server";
 import { prisma } from "../services/db.server";
 import { useLoaderData, useActionData } from "react-router";
-import { ComprovantesFatView } from "../views/ComprovantesFatView";
+import { PixAdmView } from "../views/PixAdmView";
 
 export async function loader() {
   const documents = await prisma.document.findMany({
-    where: { automationType: 'COMPROVANTE_FAT' },
+    where: { automationType: 'PIX_ADM' },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -21,7 +21,7 @@ export async function loader() {
   ).filter(Boolean) as string[];
 
   if (orphanIds.length > 0) {
-    console.warn(`[Loader] Purging ${orphanIds.length} orphan record(s) from COMPROVANTE_FAT`);
+    console.warn(`[Loader] Purging ${orphanIds.length} orphan record(s) from PIX_ADM`);
     await prisma.document.deleteMany({ where: { id: { in: orphanIds } } });
   }
 
@@ -53,6 +53,7 @@ export async function action({ request }: { request: Request }) {
 
 
   const pdfFile = formData.get("pdf") as File;
+  console.log(`[PixADM Action] Recebido arquivo: ${pdfFile?.name} | Tamanho: ${pdfFile?.size}`);
 
   if (!pdfFile || !pdfFile.name) {
     return Response.json({ error: "O arquivo PDF é estritamente obrigatório." }, { status: 400 });
@@ -63,8 +64,10 @@ export async function action({ request }: { request: Request }) {
   }
 
   const documentId = crypto.randomUUID();
-  const pdfKey = await uploadToMinIO(pdfFile, `comprovantes-fat/row/doc-${documentId}/${pdfFile.name}`);
-
+  console.log(`[PixADM Action] Fazendo upload para o MinIO...`);
+  const pdfKey = await uploadToMinIO(pdfFile, `pix-adm/raw/doc-${documentId}/${pdfFile.name}`);
+  
+  console.log(`[PixADM Action] Upload no MinIO concluído: ${pdfKey}. Criando usuário mock...`);
   await prisma.user.upsert({
     where: { id: "user_mock" },
     update: {},
@@ -75,18 +78,21 @@ export async function action({ request }: { request: Request }) {
     }
   });
 
+  console.log(`[PixADM Action] Criando registro no banco de dados...`);
   const docRecord = await prisma.document.create({
     data: {
       id: documentId,
       userId: "user_mock",
       originalName: pdfFile.name,
       originalStorageKey: pdfKey,
-      automationType: "COMPROVANTE_FAT",
+      automationType: "PIX_ADM",
     }
   });
 
-  await enqueueJob("process-comprovante-fat", { documentId: docRecord.id });
+  console.log(`[PixADM Action] Adicionando Job na fila process-pix-adm...`);
+  await enqueueJob("process-pix-adm", { documentId: docRecord.id });
 
+  console.log(`[PixADM Action] Tudo certo! Retornando sucesso.`);
   return Response.json({ success: true, trackingId: docRecord.id });
 }
 
@@ -94,5 +100,5 @@ export default function Route() {
   const { documents } = useLoaderData<typeof loader>();
   const actionData = useActionData<{ success?: boolean; error?: string; trackingId?: string }>();
 
-  return <ComprovantesFatView documents={documents} actionData={actionData} />;
+  return <PixAdmView documents={documents} actionData={actionData} />;
 }

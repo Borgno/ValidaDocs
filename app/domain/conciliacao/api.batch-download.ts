@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs } from "react-router";
-import { prisma } from "../services/db.server";
-import { downloadFromMinIO } from "../services/storage.server";
+import { prisma } from "../../services/db.server";
+import { downloadFromMinIO } from "../../services/storage.server";
 import JSZip from "jszip";
 
 export async function loader({ params }: LoaderFunctionArgs) {
