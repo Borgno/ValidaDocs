@@ -5,7 +5,7 @@ if (process.env.RUNNING_IN_DOCKER === "true" && (endpointHost === 'localhost' ||
   endpointHost = 'minio';
 }
 
-const minioClient = new S3Client({
+export const minioClient = new S3Client({
   endpoint: `http://${endpointHost}:${process.env.MINIO_PORT || 9000}`,
   region: "us-east-1", // Padrão necessário pelo AWS SDK mesmo em MinIO
   credentials: {
