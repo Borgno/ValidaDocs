@@ -51,12 +51,19 @@ export async function deleteFromMinIO(key: string): Promise<void> {
   }
 }
 
+// Só retorna false quando o MinIO confirma que o arquivo não existe (404).
+// Qualquer outro erro (credencial inválida, MinIO fora do ar) é tratado como "existe",
+// para que os loaders não purguem registros do banco por engano.
 export async function fileExistsInMinIO(key: string): Promise<boolean> {
   try {
     await minioClient.send(new HeadObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
     return true;
-  } catch {
-    return false;
+  } catch (error: any) {
+    if (error.$metadata?.httpStatusCode === 404 || error.name === "NotFound") {
+      return false;
+    }
+    console.error(`[MinIO] Erro ao verificar existência de ${key}; mantendo registro.`, error?.name || error);
+    return true;
   }
 }
 

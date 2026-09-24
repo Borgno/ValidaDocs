@@ -6,19 +6,19 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: validadocs-app
-    ports:
-      - "3010:3000"
+    expose:
+      - "${FRONT_PORT:-3000}"
     environment:
       - RUNNING_IN_DOCKER=true
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:5432/${POSTGRES_DB:-validadocs}?schema=public
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:${POSTGRES_PORT:-3002}/${POSTGRES_DB:-validadocs}?schema=public
+      - REDIS_URL=redis://redis:${REDIS_PORT:-3003}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT:-minio}
-      - MINIO_PORT=${MINIO_PORT:-9000}
+      - MINIO_PORT=${MINIO_PORT:-3004}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-admin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-admin123}
       - MINIO_BUCKET=${MINIO_BUCKET:-validadocs}
       - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
-      - PORT=3000
+      - PORT=${FRONT_PORT:-3000}
     depends_on:
       db:
         condition: service_healthy
@@ -32,16 +32,18 @@ services:
   db:
     image: postgres:16-alpine
     container_name: validadocs-db
+    command: postgres -p ${POSTGRES_PORT:-3002}
+    expose:
+      - "${POSTGRES_PORT:-3002}"
     environment:
+      - PGPORT=${POSTGRES_PORT:-3002}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgrespassword}
       - POSTGRES_DB=${POSTGRES_DB:-validadocs}
-    #ports:
-    #  - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d validadocs"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -p $${PGPORT}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -51,12 +53,13 @@ services:
   redis:
     image: redis:7-alpine
     container_name: validadocs-redis
-    #ports:
-    #  - "6379:6379"
+    command: redis-server --port ${REDIS_PORT:-3003}
+    expose:
+      - "${REDIS_PORT:-3003}"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -p ${REDIS_PORT:-3003} ping"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -66,20 +69,20 @@ services:
   minio:
     image: minio/minio:latest
     container_name: validadocs-minio
-    command: server /data --console-address ":9001"
+    command: server /data --address ":${MINIO_PORT:-3004}" --console-address ":${MINIO_CONSOLE_PORT:-3005}"
+    expose:
+      - "${MINIO_PORT:-3004}"
+      - "${MINIO_CONSOLE_PORT:-3005}"
     environment:
       - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-admin}
       - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-admin123}
-    #ports:
-    #  - "9000:9000"
-    #  - "9001:9001"
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      test: ["CMD", "curl", "-f", "http://localhost:${MINIO_PORT:-3004}/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
     restart: unless-stopped
 

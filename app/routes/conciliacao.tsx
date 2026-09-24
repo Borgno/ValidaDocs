@@ -136,36 +136,49 @@ export async function action({ request }: { request: Request }) {
   }
 
   const batchId = crypto.randomUUID();
-  const pdfKey = await uploadToMinIO(pdfFile, `conciliacao/row/batch-${batchId}/${pdfFile.name}`);
-  const excelKey = await uploadToMinIO(excelFile, `conciliacao/row/batch-${batchId}/${excelFile.name}`);
 
-  await prisma.user.upsert({
-    where: { id: "user_mock" },
-    update: {},
-    create: {
-      id: "user_mock",
-      username: "admin_teste",
-      password: process.env.MOCK_USER_PASSWORD || "",
-    }
-  });
+  let pdfKey: string;
+  let excelKey: string;
+  try {
+    pdfKey = await uploadToMinIO(pdfFile, `conciliacao/row/batch-${batchId}/${pdfFile.name}`);
+    excelKey = await uploadToMinIO(excelFile, `conciliacao/row/batch-${batchId}/${excelFile.name}`);
+  } catch (err: any) {
+    console.error("[Conciliacao] Falha no upload para o MinIO:", err);
+    return Response.json({ error: `Falha ao enviar arquivos (MinIO): ${err.message}` }, { status: 500 });
+  }
 
-  const docRecord = await prisma.document.create({
-    data: {
-      id: batchId,
-      userId: "user_mock",
-      originalName: pdfFile.name,
-      originalStorageKey: pdfKey,
-      automationType: "CONCILIACAO_CTE",
-      extractedData: {
-        excelName: excelFile.name,
-        excelStorageKey: excelKey,
+  try {
+    await prisma.user.upsert({
+      where: { id: "user_mock" },
+      update: {},
+      create: {
+        id: "user_mock",
+        username: "admin_teste",
+        password: process.env.MOCK_USER_PASSWORD || "",
       }
-    }
-  });
+    });
 
-  await enqueueJob("process-conciliacao", { documentId: docRecord.id, excelKey });
+    const docRecord = await prisma.document.create({
+      data: {
+        id: batchId,
+        userId: "user_mock",
+        originalName: pdfFile.name,
+        originalStorageKey: pdfKey,
+        automationType: "CONCILIACAO_CTE",
+        extractedData: {
+          excelName: excelFile.name,
+          excelStorageKey: excelKey,
+        }
+      }
+    });
 
-  return Response.json({ success: true, trackingId: docRecord.id });
+    await enqueueJob("process-conciliacao", { documentId: docRecord.id, excelKey });
+
+    return Response.json({ success: true, trackingId: docRecord.id });
+  } catch (err: any) {
+    console.error("[Conciliacao] Falha ao registrar/enfileirar lote:", err);
+    return Response.json({ error: `Falha ao registrar o lote (banco/fila): ${err.message}` }, { status: 500 });
+  }
 }
 
 export default function Route() {
