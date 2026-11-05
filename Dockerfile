@@ -40,6 +40,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/scripts ./scripts
 # Copy public folder if it exists (for static assets before build, though React Router v7 puts them in build/client, it's safe to copy)
 COPY --from=builder /app/public ./public
 
