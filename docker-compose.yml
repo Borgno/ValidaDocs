@@ -19,6 +19,7 @@ services:
       - MINIO_BUCKET=${MINIO_BUCKET:-validadocs}
       - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
       - PORT=${FRONT_PORT:-3000}
+      - SESSION_SECRET=${SESSION_SECRET:?defina SESSION_SECRET (32+ caracteres)}
     depends_on:
       db:
         condition: service_healthy

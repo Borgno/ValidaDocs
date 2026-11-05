@@ -1,0 +1,22 @@
+feat: login com sessão por cookie no lugar do usuário mock
+
+O sistema não tinha autenticação e todo upload era gravado no usuário
+fixo user_mock. Por causa da LGPD, as telas e as rotas de API passam a
+exigir login.
+
+O fluxo vem do ModuloDefault: senha com bcrypt, cookie de sessão
+assinado por HMAC (sem estado no servidor), limite de tentativas por
+login e por IP, login pelo nome antes do "@" ou pelo e-mail completo e
+troca obrigatória de senha no primeiro acesso em produção.
+
+- As telas e APIs ficam sob um layout com middleware de sessão; login,
+  logout e troca de senha ficam fora dele.
+- Os uploads de conciliação, comprovantes FAT e Pix ADM gravam o
+  usuário da sessão.
+- O model User ganha e-mail, role, status e sessionVersion. As colunas
+  antigas username e password mantêm o nome no banco para o db push do
+  start não recriar a tabela nem apagar os documentos existentes.
+- Os admins são criados no banco pelo script create-admin, rodado uma
+  vez por pessoa no terminal do container. Sem senha informada, ele gera
+  uma temporária. SESSION_SECRET passa a ser obrigatória no
+  docker-compose.
