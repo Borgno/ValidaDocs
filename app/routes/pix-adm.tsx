@@ -1,6 +1,8 @@
 import { uploadToMinIO, deleteFromMinIO, fileExistsInMinIO } from "../services/storage.server";
 import { enqueueJob } from "../jobs/queue.server";
 import { prisma } from "../services/db.server";
+import { getSessionUser } from "../middleware/auth.server";
+import type { RouterContextProvider } from "react-router";
 import { useLoaderData, useActionData } from "react-router";
 import { PixAdmView } from "../views/PixAdmView";
 
@@ -29,7 +31,8 @@ export async function loader() {
   return { documents: validDocuments };
 }
 
-export async function action({ request }: { request: Request }) {
+export async function action({ request, context }: { request: Request; context: Readonly<RouterContextProvider> }) {
+  const user = getSessionUser(context);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 
@@ -67,22 +70,12 @@ export async function action({ request }: { request: Request }) {
   console.log(`[PixADM Action] Fazendo upload para o MinIO...`);
   const pdfKey = await uploadToMinIO(pdfFile, `pix-adm/raw/doc-${documentId}/${pdfFile.name}`);
   
-  console.log(`[PixADM Action] Upload no MinIO concluído: ${pdfKey}. Criando usuário mock...`);
-  await prisma.user.upsert({
-    where: { id: "user_mock" },
-    update: {},
-    create: {
-      id: "user_mock",
-      username: "admin_teste",
-      password: process.env.MOCK_USER_PASSWORD || "",
-    }
-  });
 
   console.log(`[PixADM Action] Criando registro no banco de dados...`);
   const docRecord = await prisma.document.create({
     data: {
       id: documentId,
-      userId: "user_mock",
+      userId: user.id,
       originalName: pdfFile.name,
       originalStorageKey: pdfKey,
       automationType: "PIX_ADM",

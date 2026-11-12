@@ -63,19 +63,34 @@ O **ValidaDocs** é uma plataforma para processamento, validação e conciliaç�
 
 1. **Instale as dependências**
    ```bash
-   npm install
+   bun i
    ```
 
-2. **Inicie o Servidor de Desenvolvimento**
-   *(Certifique-se de ter os contêineres do banco rodando)*
+2. **Configure o ambiente**
    ```bash
-   npm run dev
+   cp .env.example .env
+   ```
+   Preencha `SESSION_SECRET` com o resultado de `openssl rand -hex 32`.
+
+3. **Suba a infra local e o banco**
+   *(Postgres, Redis e MinIO do `docker-compose.dev.yml`, presos a `127.0.0.1`)*
+   ```bash
+   bun run infra:up
+   bun run db:push
    ```
 
-3. **Produção (Build)**
+4. **Crie seu usuário admin** (uma vez)
    ```bash
-   npm run build
-   npm start
+   bun run create-admin -- seu.nome@empresa.com.br --password suasenha
    ```
+
+5. **Inicie o servidor de desenvolvimento**
+   ```bash
+   bun run dev
+   ```
+   Para parar a infra: `bun run infra:down`.
+
+6. **Produção (Dokploy)**
+   O `docker-compose.yml` sobe app, banco, Redis e MinIO sem publicar portas: o proxy do Dokploy alcança a app pela porta interna. `SESSION_SECRET` precisa estar no ambiente do Dokploy. Depois do primeiro deploy, crie os admins no terminal do container com `npm run create-admin -- email@empresa.com.br`.
 
 ---
