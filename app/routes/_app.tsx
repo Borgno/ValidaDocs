@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form, NavLink, Outlet, useLoaderData, useRouteLoaderData } from "react-router";
-import { LayoutDashboard, CheckSquare, FileText, Menu, LogOut } from "lucide-react";
+import { LayoutDashboard, CheckSquare, FileText, Menu, LogOut, Users } from "lucide-react";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { authMiddleware, getSessionUser } from "../middleware/auth.server";
 import type { SessionUser } from "../services/auth/auth.server";
@@ -72,6 +72,18 @@ function Sidebar({ theme, user, isExpanded, setIsExpanded }: { theme: "light" | 
                 </>
               )}
             </NavLink>
+
+            {user.role === "admin" && (
+              <NavLink to="/usuarios" prefetch="render" className={({ isActive }) => `relative mx-4 h-12 flex items-center rounded-xl transition-all ${isExpanded ? 'px-4' : 'w-12 mx-auto justify-center'} ${isActive ? 'text-primary bg-transparent font-medium' : 'text-text-muted bg-transparent hover:bg-surface-light hover:text-text font-normal'}`} title="Usuários">
+                {({ isActive }) => (
+                  <>
+                    <Users size={22} strokeWidth={1.5} className="shrink-0" />
+                    <span className={`ml-3 text-[14px] whitespace-nowrap transition-opacity delay-100 ${isExpanded ? 'opacity-100' : 'opacity-0 hidden'}`}>Usuários</span>
+                    {isActive && <span className="absolute -left-4 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r bg-primary" />}
+                  </>
+                )}
+              </NavLink>
+            )}
           </nav>
         </div>
 
@@ -124,6 +136,16 @@ function Sidebar({ theme, user, isExpanded, setIsExpanded }: { theme: "light" | 
               </>
             )}
           </NavLink>
+          {user.role === "admin" && (
+            <NavLink to="/usuarios" prefetch="render" title="Usuários" className={({ isActive }) => `relative w-11 h-11 flex items-center justify-center transition-colors ${isActive ? 'text-primary' : 'text-text-muted hover:text-text'}`}>
+              {({ isActive }) => (
+                <>
+                  <Users size={22} />
+                  {isActive && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-[3px] rounded-b bg-primary" />}
+                </>
+              )}
+            </NavLink>
+          )}
           <ThemeToggle initialTheme={theme} isMobile />
           <Form method="post" action="/logout">
             <button type="submit" title="Sair" className="relative w-11 h-11 flex items-center justify-center text-text-muted hover:text-text transition-colors">

@@ -16,5 +16,6 @@ export default [
     route("api/pix-download/:date", "domain/pix-adm/api.pix-download.ts"),
     route("api/config", "routes/api.config.ts"),
     route("pix-adm", "routes/pix-adm.tsx"),
+    route("usuarios", "routes/usuarios.tsx"),
   ]),
 ] satisfies RouteConfig;

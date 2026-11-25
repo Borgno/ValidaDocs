@@ -41,6 +41,12 @@ export function loadSession(request: Request) {
   return resolveSession(readSessionCookie(request));
 }
 
+// Para rotas sob o authMiddleware que só o admin acessa. Quem não é admin volta para o início.
+export const adminMiddleware: MiddlewareFunction<Response> = async ({ context }, next) => {
+  if (getSessionUser(context).role !== "admin") throw redirect("/");
+  return next();
+};
+
 export const authMiddleware: MiddlewareFunction<Response> = async ({ request, context }, next) => {
   const resolved = await loadSession(request);
   if (!resolved) throw redirect(loginPath(request));
